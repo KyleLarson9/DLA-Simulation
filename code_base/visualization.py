@@ -1,5 +1,6 @@
 import pygame as pg
 import numpy as np
+import random as rand
 
 class Visualization:
     def __init__(self, width=800, height=800, tile_size=4):
@@ -20,6 +21,13 @@ class Visualization:
         self.grid = np.zeros((self.ROWS, self.COLS), dtype=int)
         self.grid[self.ROWS//2, self.COLS//2] = 1 # put a 1 in the central tile to be the seed
 
+    def calc_rand_tiles(self):
+        for row in range(self.ROWS):
+            for col in range(self.COLS):
+                rand_num = rand.randint(1, 100)
+                if rand_num == 1:
+                    self.grid[row, col] = 1
+
     def draw(self):
         self.screen.fill(self.BACKGROUND_COLOR)
 
@@ -32,5 +40,14 @@ class Visualization:
                         (col * self.TILE_SIZE, row * self.TILE_SIZE, self.TILE_SIZE, self.TILE_SIZE)
                     )
 
-        pg.display.flip()
- 
+    def draw_walker(self, walker):
+        pg.draw.rect(
+            self.screen,
+            (0, 255, 0),
+            (walker.col * self.TILE_SIZE, walker.row * self.TILE_SIZE, self.TILE_SIZE, self.TILE_SIZE)
+        )
+
+    def calculate_color(self):
+        # color should change is distance from seed increases
+        color = 1
+
