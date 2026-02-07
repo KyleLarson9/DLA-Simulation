@@ -8,11 +8,11 @@ class Visualization:
 
         self.zoom = 1.0
         self.min_zoom = .001
-        self.max_zoom = 5.0
+        self.max_zoom = 10.0
 
         self.dragging = False
         self.drag_start_mouse = (0, 0)
-        self.drag_start_cam = (0, 0)
+        self.drag_start_cam = (0,0)
 
         self.speed = 3
         

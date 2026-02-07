@@ -54,6 +54,17 @@ while running:
 
         keys = pg.key.get_pressed()
 
+        if keys[pg.K_r]:
+            vis.zoom = 1
+            vis.top_left_col = 0
+            vis.top_left_row = 0
+
+        print(vis.zoom)
+        if vis.zoom <= 1:
+            vis.zoom = 1
+            vis.top_left_col = 0
+            vis.top_left_row = 0
+
         Zoom_Logic.pan(keys, vis)
 
     vis.draw()
@@ -76,7 +87,6 @@ while running:
             if radius > cluster_radius:
                 cluster_radius = radius
                 kill_radius = cluster_radius + radii_difference
-                print(cluster_radius)
             
             walkers.append(Walker(vis.ROWS, vis.COLS, center_row, center_col, cluster_radius, kill_radius))
 

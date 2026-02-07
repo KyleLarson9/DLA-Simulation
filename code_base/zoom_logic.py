@@ -9,9 +9,9 @@ class Zoom_Logic:
 
         # zoom in or out
         if event.y > 0:
-            vis.zoom *= 1.1
+            vis.zoom += .4
         elif event.y < 0:
-            vis.zoom *= .9
+            vis.zoom -= .4
 
         vis.zoom = max(vis.min_zoom, min(vis.zoom, vis.max_zoom)) # cap zoom to min and max 
 
