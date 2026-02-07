@@ -21,15 +21,36 @@ class Visualization:
         self.grid = np.zeros((self.ROWS, self.COLS), dtype=int)
         self.grid[self.ROWS//2, self.COLS//2] = 1 # put a 1 in the central tile to be the seed
 
+    def calculate_color(self, row, col):
+        # color should change is distance from seed increases
+        center_row = self.ROWS//2
+        center_col = self.COLS//2
+
+        distance = ((row - center_row)**2 + (col - center_col)**2)**.5
+        max_radius = min(self.ROWS, self.COLS) // 2
+
+        # normalize distance
+        t = min(distance / max_radius, 1)
+
+        # shift from red to blue as radius increases
+        r = int(255 * (1-t))
+        g = 0
+        b = int(255*t)
+
+        return (r, g, b)
+
     def draw(self):
         self.screen.fill(self.BACKGROUND_COLOR)
 
         for row in range(self.ROWS):
             for col in range(self.COLS):
                 if self.grid[row, col] == 1:
+
+                    color = self.calculate_color(row, col)
+
                     pg.draw.rect(
                         self.screen,
-                        (255, 0, 0),
+                        color,
                         (col * self.TILE_SIZE, row * self.TILE_SIZE, self.TILE_SIZE, self.TILE_SIZE)
                     )
 
@@ -53,8 +74,4 @@ class Visualization:
             1                  
         )
 
-
-    def calculate_color(self):
-        # color should change is distance from seed increases
-        color = 1
 
