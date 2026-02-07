@@ -32,9 +32,7 @@ class Visualization:
         self.BACKGROUND_COLOR = (20, 20, 20)
 
         self.grid = np.zeros((self.ROWS, self.COLS), dtype=int)
-        self.grid[self.ROWS//2, self.
-        COLS//2] = 1 # put a 1 in the central tile to be the seed
-
+    
     def tile_position_after_zoom(self, row, col): # row and col are the looped over grid tiles in the draw function
         x = (col - self.top_left_col)*self.TILE_SIZE*self.zoom
         y = (row - self.top_left_row)*self.TILE_SIZE*self.zoom # new coordiante of top left grid tile after zoom
@@ -59,7 +57,7 @@ class Visualization:
 
         return (r, g, b)
 
-    def draw(self):
+    def draw_cluster(self):
         self.screen.fill(self.BACKGROUND_COLOR)
 
         for row in range(self.ROWS):
@@ -105,5 +103,4 @@ class Visualization:
             radius,           
             1                  
         )
-
 

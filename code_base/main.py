@@ -1,8 +1,10 @@
 import pygame as pg
 import sys
+import random as rand
 
 from visualization import Visualization
 from walker_logic import Walker
+from cluster_logic import Cluster
 from math_methods import Math_Logic
 from zoom_logic import Zoom_Logic
 
@@ -10,21 +12,28 @@ width = 800
 height = 800
 tile_size = 1
 
-total_walkers = 1000
-walkers = []
+walkers_per_cluster = 200
 
-cluster_radius = 0
+total_clusters = 40
+clusters = []
+
 radii_difference = 30
-kill_radius = cluster_radius + radii_difference # in grid units
 
 vis = Visualization(width, height, tile_size)
 
 center_row = vis.ROWS // 2 
 center_col = vis.COLS // 2
 
-for _ in range(total_walkers):
-    walker = Walker(vis.ROWS, vis.COLS, center_row, center_col, cluster_radius, kill_radius)
-    walkers.append(walker)
+for _ in range(total_clusters):
+
+    x = rand.randint(0, vis.ROWS - 1)
+    y = rand.randint(0, vis.COLS - 1)
+
+    cluster_radius = 0
+    kill_radius = cluster_radius + radii_difference
+
+    cluster = Cluster(x, y, vis.ROWS, vis.COLS, walkers_per_cluster, cluster_radius, kill_radius, vis.grid)
+    clusters.append(cluster)
 
 # main loop
 running = True
@@ -59,60 +68,56 @@ while running:
             vis.top_left_col = 0
             vis.top_left_row = 0
 
-        print(vis.zoom)
         if vis.zoom <= 1:
             vis.zoom = 1
             vis.top_left_col = 0
             vis.top_left_row = 0
 
         Zoom_Logic.pan(keys, vis)
+    
+    vis.draw_cluster()
 
-    vis.draw()
+    for cluster in clusters:
+        # vis.draw_circle(cluster.col, cluster.row, cluster.kill_radius, (100, 100, 100))
 
-    for walker in walkers[:]:
-        # vis.draw_walker(walker)
-        walker.step()
+        for walker in cluster.walkers[:]:
+                # vis.draw_walker(walker)
+                walker.step()
 
-        if walker.exceeds_kill_radius(center_row, center_col, kill_radius):
-            walkers.remove(walker)
-            walkers.append(Walker(vis.ROWS, vis.COLS, center_row, center_col, cluster_radius, kill_radius))
-            continue
+                if walker.exceeds_kill_radius(cluster.row, cluster.col, cluster.kill_radius):
+                    cluster.walkers.remove(walker)
+                    cluster.walkers.append(Walker(vis.ROWS, vis.COLS, cluster.row, cluster.col, cluster.cluster_radius, cluster.kill_radius))
+                    continue
 
-        if walker.touches_cluster(vis.grid):
-            vis.grid[walker.row][walker.col] = 1
-            walkers.remove(walker)
+                if walker.touches_cluster(vis.grid):
+                    vis.grid[walker.row][walker.col] = 1
+                    cluster.walkers.remove(walker)
 
-            radius = Math_Logic.calculate_distance(center_row, center_col, walker.row, walker.col)
+                    radius = Math_Logic.calculate_distance(cluster.row, cluster.col, walker.row, walker.col)
 
-            if radius > cluster_radius:
-                cluster_radius = radius
-                kill_radius = cluster_radius + radii_difference
-            
-            walkers.append(Walker(vis.ROWS, vis.COLS, center_row, center_col, cluster_radius, kill_radius))
+                    if radius > cluster.cluster_radius:
+                        cluster.cluster_radius = radius
+                        cluster.kill_radius = cluster.cluster_radius + radii_difference
+                    
+                    cluster.walkers.append(Walker(vis.ROWS, vis.COLS, cluster.row, cluster.col, cluster.cluster_radius, cluster.kill_radius))
 
-            continue
-        
-    # vis.draw_circle(
-    #             center_x=center_col * vis.TILE_SIZE + vis.TILE_SIZE//2,
-    #             center_y=center_row * vis.TILE_SIZE + vis.TILE_SIZE//2,
-    #             radius=cluster_radius * vis.TILE_SIZE,
-    #             color = (0, 0, 255)
-    #         )
-        
-    # vis.draw_circle(
-    #             center_x=center_col * vis.TILE_SIZE + vis.TILE_SIZE//2,
-    #             center_y=center_row * vis.TILE_SIZE + vis.TILE_SIZE//2,
-    #             radius=kill_radius * vis.TILE_SIZE,
-    #             color = (255, 0, 0)
-    #         )
+                    continue
 
 
     pg.display.flip()
 
-    clock.tick(60)
+    clock.tick(60)  # limit to 60 FPS
+
+    print(f"FPS: {clock.get_fps():.2f}")  # prints current FPS
 
 
 pg.quit()
 sys.exit()
 
 
+# later try to make it so that if two clusters meet, they combine
+#   - Find the center of the cluster
+#   - And recalculate the kill and cluster radii and combine their walkers
+
+# need to greatly optimze the draw functions
+#  - to many iterations for checking aroudn tiles
