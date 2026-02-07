@@ -40,18 +40,19 @@ class Visualization:
             (walker.col * self.TILE_SIZE, walker.row * self.TILE_SIZE, self.TILE_SIZE, self.TILE_SIZE)
         )
 
-    def draw_R_max(self, center_x, center_y, max_r, max_c):
-        # radius of the cluster
+    def draw_circle(self, center_x, center_y, radius, color):
+        # Convert floats to ints
+        center = (int(center_x), int(center_y))
+        radius = int(radius)
+        
+        pg.draw.circle(
+            self.screen, 
+            color,       
+            center,            
+            radius,           
+            1                  
+        )
 
-        # each time a particle is added to the cluster calcualte its distance
-        #  - if that distance is greater than the current longest distance, update that distance
-        #    and that will be the radius of the cluster
-
-        temp = 1
-
-    def draw_R_kill(self):
-        # radius of kill zone (if walker goes past it gets eliminated to save cpu space)
-        temp = 1
 
     def calculate_color(self):
         # color should change is distance from seed increases
