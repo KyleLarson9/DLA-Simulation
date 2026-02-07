@@ -20,12 +20,9 @@ class Walker:
         else:
             self.row = rand.randint(0, rows - 1)
             self.col = cols - 1
-        # self.row = rand.randint(0, rows - 1)
-        # self.col = rand.randint(0, cols - 1)
-
 
         self.COLOR = (0, 255, 0)   
-
+        
     def step(self):
 
         # Chose a random direction (up, down, left, right)
@@ -45,6 +42,28 @@ class Walker:
         if 0 <= new_col < self.COLS:
             self.col = new_col
 
-    def touches_cluster(self):
-        temp = 1
+    def touches_cluster(self, grid):
+        # check value of tile around walker to see if it is part of the cluster
+
+        for i in [-1, 0, 1]:
+            for j in [-1, 0, 1]:
+                if i == j == 0:
+                    continue
+
+                # check if this position is part of the cluster
+                r = self.row + i
+                c = self.col + j
+
+                if 0 <= r < len(grid) and 0 <= c < len(grid[0]):
+                    if grid[r][c] == 1:
+                        return True
+                
+        return False
+
+
+
+
+
+
+        
     

@@ -4,14 +4,22 @@ import sys
 from visualization import Visualization
 from walker_logic import Walker
 
-vis = Visualization()
-walker = Walker(vis.ROWS, vis.COLS)
+width = 800
+height = 800
+tile_size = 10
+
+total_walkers = 100
+walkers = []
+
+vis = Visualization(width, height, tile_size)
+
+for _ in range(total_walkers):
+    walker = Walker(vis.ROWS, vis.COLS)
+    walkers.append(walker)
 
 # main loop
 running = True
 clock = pg.time.Clock()
-
-# vis.calc_rand_tiles()
 
 while running:
     for event in pg.event.get():
@@ -19,13 +27,18 @@ while running:
             running = False
 
     vis.draw()
-    vis.draw_walker(walker)
 
-    walker.step()
+    for walker in walkers:
+        vis.draw_walker(walker)
+        walker.step()
+        if walker.touches_cluster(vis.grid):
+            vis.grid[walker.row][walker.col] = 1
+            walkers.remove(walker)
+            walkers.append(Walker(vis.ROWS, vis.COLS))
 
     pg.display.flip()
 
-    clock.tick(10000)
+    clock.tick(100)
 
 
 pg.quit()

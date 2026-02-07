@@ -3,7 +3,7 @@ import numpy as np
 import random as rand
 
 class Visualization:
-    def __init__(self, width=800, height=800, tile_size=4):
+    def __init__(self, width, height, tile_size):
         pg.init()
 
         self.WIDTH = width
@@ -20,13 +20,6 @@ class Visualization:
 
         self.grid = np.zeros((self.ROWS, self.COLS), dtype=int)
         self.grid[self.ROWS//2, self.COLS//2] = 1 # put a 1 in the central tile to be the seed
-
-    def calc_rand_tiles(self):
-        for row in range(self.ROWS):
-            for col in range(self.COLS):
-                rand_num = rand.randint(1, 100)
-                if rand_num == 1:
-                    self.grid[row, col] = 1
 
     def draw(self):
         self.screen.fill(self.BACKGROUND_COLOR)
@@ -46,6 +39,19 @@ class Visualization:
             (0, 255, 0),
             (walker.col * self.TILE_SIZE, walker.row * self.TILE_SIZE, self.TILE_SIZE, self.TILE_SIZE)
         )
+
+    def draw_R_max(self, center_x, center_y, max_r, max_c):
+        # radius of the cluster
+
+        # each time a particle is added to the cluster calcualte its distance
+        #  - if that distance is greater than the current longest distance, update that distance
+        #    and that will be the radius of the cluster
+
+        temp = 1
+
+    def draw_R_kill(self):
+        # radius of kill zone (if walker goes past it gets eliminated to save cpu space)
+        temp = 1
 
     def calculate_color(self):
         # color should change is distance from seed increases
