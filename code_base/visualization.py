@@ -6,6 +6,19 @@ class Visualization:
     def __init__(self, width, height, tile_size):
         pg.init()
 
+        self.zoom = 1.0
+        self.min_zoom = .001
+        self.max_zoom = 5.0
+
+        self.dragging = False
+        self.drag_start_mouse = (0, 0)
+        self.drag_start_cam = (0, 0)
+
+        self.speed = 3
+        
+        self.top_left_col = 0.0 # Corner of grid space
+        self.top_left_row = 0.0
+
         self.WIDTH = width
         self.HEIGHT = height
         self.TILE_SIZE = tile_size
@@ -19,7 +32,14 @@ class Visualization:
         self.BACKGROUND_COLOR = (20, 20, 20)
 
         self.grid = np.zeros((self.ROWS, self.COLS), dtype=int)
-        self.grid[self.ROWS//2, self.COLS//2] = 1 # put a 1 in the central tile to be the seed
+        self.grid[self.ROWS//2, self.
+        COLS//2] = 1 # put a 1 in the central tile to be the seed
+
+    def tile_position_after_zoom(self, row, col): # row and col are the looped over grid tiles in the draw function
+        x = (col - self.top_left_col)*self.TILE_SIZE*self.zoom
+        y = (row - self.top_left_row)*self.TILE_SIZE*self.zoom # new coordiante of top left grid tile after zoom
+        size = self.TILE_SIZE * self.zoom
+        return int(x), int(y), int(size)
 
     def calculate_color(self, row, col):
         # color should change is distance from seed increases
@@ -47,18 +67,30 @@ class Visualization:
                 if self.grid[row, col] == 1:
 
                     color = self.calculate_color(row, col)
+                    x, y, size = self.tile_position_after_zoom(row, col) # coordinate of current tile after zoom
+
+                    # if the current tile is out of bounds in the new zoom, don't draw it
+                    if size <= 0:
+                        continue
+                    if x + size < 0 or y + size < 0:
+                        continue
+                    if x > self.WIDTH or y > self.HEIGHT:
+                        continue
 
                     pg.draw.rect(
                         self.screen,
                         color,
-                        (col * self.TILE_SIZE, row * self.TILE_SIZE, self.TILE_SIZE, self.TILE_SIZE)
+                        (x, y, size, size)
                     )
 
     def draw_walker(self, walker):
+
+        x, y, size = self.tile_position_after_zoom(walker.row, walker.col)
+
         pg.draw.rect(
             self.screen,
             (0, 255, 0),
-            (walker.col * self.TILE_SIZE, walker.row * self.TILE_SIZE, self.TILE_SIZE, self.TILE_SIZE)
+            (x, y, size, size)
         )
 
     def draw_circle(self, center_x, center_y, radius, color):
