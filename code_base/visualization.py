@@ -1,6 +1,6 @@
 import pygame as pg
 import numpy as np
-import random as rand
+import math as math
 
 class Visualization:
     def __init__(self, width, height, tile_size):
@@ -57,29 +57,27 @@ class Visualization:
 
         return (r, g, b)
 
-    def draw_cluster(self):
-        self.screen.fill(self.BACKGROUND_COLOR)
+    def draw_cluster(self, cluster):
+        
+        for particle in cluster.particle_cords:
+            col = particle[0]
+            row = particle[1]
 
-        for row in range(self.ROWS):
-            for col in range(self.COLS):
-                if self.grid[row, col] == 1:
+            color = cluster.color
+            x, y, size = self.tile_position_after_zoom(row, col)
 
-                    color = self.calculate_color(row, col)
-                    x, y, size = self.tile_position_after_zoom(row, col) # coordinate of current tile after zoom
+            if size <= 0:
+                continue
+            if x + size < 0 or y + size < 0:
+                continue
+            if x > self.WIDTH or y > self.HEIGHT:
+                continue
 
-                    # if the current tile is out of bounds in the new zoom, don't draw it
-                    if size <= 0:
-                        continue
-                    if x + size < 0 or y + size < 0:
-                        continue
-                    if x > self.WIDTH or y > self.HEIGHT:
-                        continue
-
-                    pg.draw.rect(
-                        self.screen,
-                        color,
-                        (x, y, size, size)
-                    )
+            pg.draw.rect(
+                self.screen,
+                color,
+                (x, y, size, size)
+            )
 
     def draw_walker(self, walker):
 
@@ -104,3 +102,12 @@ class Visualization:
             1                  
         )
 
+
+# rewrite the rendering to be O(num_particles) instead of O(grid)
+
+# Write now, each frame I am asking the grid to give information on what tiles contain a particle
+#  - This is wasted compute 
+# Instead, for each cluster, store an array of particle positoins [(c_1, r_1), (c_2, r_2), ... (c_n, r_n)]
+#  - Then, instead of looping over the entire grid and checking the tile value, loop over the individual cluster
+#    arrays and draw the tiles from there
+#  - IDEA: This way, if two clusters touch, then I can combine them into a single cluster maybe

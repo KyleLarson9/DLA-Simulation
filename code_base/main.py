@@ -10,11 +10,11 @@ from zoom_logic import Zoom_Logic
 
 width = 800
 height = 800
-tile_size = 1
+tile_size = 2
 
-walkers_per_cluster = 200
+walkers_per_cluster = 500
 
-total_clusters = 40
+total_clusters = 2
 clusters = []
 
 radii_difference = 30
@@ -29,10 +29,17 @@ for _ in range(total_clusters):
     x = rand.randint(0, vis.ROWS - 1)
     y = rand.randint(0, vis.COLS - 1)
 
+    r = rand.randint(0, 255)
+    g = rand.randint(0, 255)
+    b = rand.randint(0, 255)
+    color = (r, g, b)
+
+    # x = vis.COLS // 2
+    # y = vis.ROWS // 2
     cluster_radius = 0
     kill_radius = cluster_radius + radii_difference
 
-    cluster = Cluster(x, y, vis.ROWS, vis.COLS, walkers_per_cluster, cluster_radius, kill_radius, vis.grid)
+    cluster = Cluster(x, y, vis.ROWS, vis.COLS, walkers_per_cluster, cluster_radius, kill_radius, vis.grid, color)
     clusters.append(cluster)
 
 # main loop
@@ -75,11 +82,11 @@ while running:
 
         Zoom_Logic.pan(keys, vis)
     
-    vis.draw_cluster()
-
     for cluster in clusters:
         # vis.draw_circle(cluster.col, cluster.row, cluster.kill_radius, (100, 100, 100))
 
+        vis.draw_cluster(cluster)
+       
         for walker in cluster.walkers[:]:
                 # vis.draw_walker(walker)
                 walker.step()
@@ -90,6 +97,9 @@ while running:
                     continue
 
                 if walker.touches_cluster(vis.grid):
+
+                    # add to coordiantes to cluster position array
+                    cluster.add_particle(walker)
                     vis.grid[walker.row][walker.col] = 1
                     cluster.walkers.remove(walker)
 
@@ -118,6 +128,3 @@ sys.exit()
 # later try to make it so that if two clusters meet, they combine
 #   - Find the center of the cluster
 #   - And recalculate the kill and cluster radii and combine their walkers
-
-# need to greatly optimze the draw functions
-#  - to many iterations for checking aroudn tiles
